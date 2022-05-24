@@ -55,8 +55,8 @@ def addProducts():
     return resp
     
 
-#get All products 
-@collectionsapi.route('/admin/collections/getAll/', methods=['GET'])
+#get All collections 
+@collectionsapi.route('/collections/getAll/', methods=['GET'])
 def allProducts():
     
     output = []
@@ -67,8 +67,8 @@ def allProducts():
     resp.status_code = 200
     return resp
 
-#Search products by Id 
-@collectionsapi.route('/admin/collections/get/<id>', methods=['GET'])
+#Search collection by Id 
+@collectionsapi.route('/collections/get/<id>', methods=['GET'])
 def productsByID(id):
    
     if ObjectId.is_valid(id) == False:
