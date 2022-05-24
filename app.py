@@ -12,6 +12,7 @@ from flask_jwt_extended import JWTManager
 from endpoints.customrs import  customersapi
 from endpoints.products import  productapi
 from endpoints.settings import  settingsapi
+from endpoints.collections import collectionsapi
 
 
 app = Flask(__name__)
@@ -26,3 +27,4 @@ jwt = JWTManager(app)
 app.register_blueprint(productapi, url_prefix="/")
 app.register_blueprint(customersapi, url_prefix="/")
 app.register_blueprint(settingsapi, url_prefix="/")
+app.register_blueprint(collectionsapi, url_prefix="/")

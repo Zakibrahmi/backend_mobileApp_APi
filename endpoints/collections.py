@@ -32,7 +32,6 @@ def internalServer(error):
 @collectionsapi.route('/admin/collections/add', methods=['POST'])
 def addProducts():
 
-   
     if not request.json:
         abort(400)
    
