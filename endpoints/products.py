@@ -41,7 +41,7 @@ def addProducts():
         abort(400)
     if 'description' in request.json and isinstance(request.json['description'], str) == False:
         abort(400)
-    if  'price' not in request.json or 'title' not in request.json or 'category' not in request.json or 'currency' not in request.json or 'color' not in request.json: 
+    if  'price' not in request.json or 'title' not in request.json or 'category' not in request.json or 'currency' not in request.json: 
         abort(400)
    
     project = request.get_json()
@@ -138,75 +138,6 @@ def searchByName(name):
     resp = jsonify(output)
     resp.status_code = 200
     return resp
-#####################################################
-  # Pub
-#####################################################   
-
-#get All pub bteween from and To
-@productapi.route('/ads/getAll', methods=['GET'])
-def allPubs():
-    
-    output = []
-    currentDate = datetime.today().replace(microsecond=0)
-    setProduits = products.find({'From': {'$lte': currentDate}, 'To' :{'$gte' :currentDate}}).sort('created', -1)
-    for d in setProduits:
-        for p in d['products']: 
-            prod = customers.find_one({'_id': ObjectId(p['id'])})
-            p['id'] = prod     
-        
-        output.append(json.loads(json_util.dumps(d)))
-        
-    resp = jsonify(output)
-    resp.status_code = 200
-    return resp
-
-#get All ads by type
-@productapi.route('/ads/getAllType/<type>', methods=['GET'])
-def allPubsType(type):
-    
-    output = []
-    currentDate = datetime.today().replace(microsecond=0)
-    setProduits = products.find({'From': {'$lte': currentDate}, 'To' :{'$gte' :currentDate}, 'type': type}).sort('created', -1)
-    
-    for d in setProduits:
-        for p in d['products']: 
-            prod = customers.find_one({'_id': ObjectId(p['id'])})
-            p['id'] = prod     
-        
-        output.append(json.loads(json_util.dumps(d)))
-                      
-    resp = jsonify(output)
-    resp.status_code = 200
-    return resp
-
-# get an ads by id
-@productapi.route('/admin/ads/get/<idads>', methods=['GET'])
-def getAdsByID(idads):
-
-    try:
-        pub = ads.find_one({'_id': ObjectId(idads)})
-    except Exception:
-        abort(500)
-    
-    for p in pub['products']: 
-        prod = customers.find_one({'_id': ObjectId(p['id'])})
-        p['id'] = prod
-    
-    resp = jsonify(json.loads(json_util.dumps(pub)))
-    resp.status_code= 200
-    return resp
-
-# Delete an ads
-@productapi.route('/admin/ads/delete/<idads>', methods=['DELETE'])
-@jwt_required()
-def delOneAds(idads):
-
-    try:
-        ads.delete_one({'_id': ObjectId(idads)})
-    except Exception:
-        abort(500)
-    return success()
-
 
 if __name__ == '__main__':
     app.run(debug=True)
