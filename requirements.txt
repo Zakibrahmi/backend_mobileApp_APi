@@ -1,0 +1,6 @@
+pyjwt
+flask-jwt-extended
+Flask-Bcryp
+Flask-PyMongo
+exponent_server_sdk
+flasgger
