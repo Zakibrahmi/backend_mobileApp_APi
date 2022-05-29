@@ -37,9 +37,9 @@ def addCollection():
    
     if 'title' in request.json and isinstance(request.json['title'], str) == False:
         abort(400)
-    if 'description' in request.json and isinstance(request.json['description'], str) == False:
+    if 'products' not in request.json:
         abort(400)
-    if  'products' not in request.json or "order" not in request.json: 
+    if  'products' not in request.json or "type" not in request.json: 
         abort(400)
    
     project = request.get_json()
