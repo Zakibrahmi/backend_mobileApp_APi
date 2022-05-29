@@ -12,6 +12,9 @@ from bson import objectid, json_util
 from endpoints.utilsFunction import *
 import time
 import operator
+
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
 from . import *
 
 app = Flask(__name__)
@@ -48,6 +51,7 @@ def not_found(error=None):
 
 #get ALl brands
 @brandsapi.route('/brands/', methods=['GET'])
+
 def allBrands():  
    output = []
    for d in brands.find():
@@ -57,13 +61,12 @@ def allBrands():
    resp.status_code=200 
    return resp
 
-#add category
+#add catebrand
 @brandsapi.route('/brands/add/', methods=['POST'])
+@jwt_required()
 def addBrand():  
    
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message': decison}), 401
+ 
     if not request.json:
         abort(400)
     if 'title' not in request.json:
@@ -83,6 +86,7 @@ def addBrand():
   
 # get brand by ID
 @brandsapi.route('/brands/get/<id>', methods=['GET'])
+
 def  brandByID(id): 
     
     brd = brands.find_one({'_id': ObjectId(id)})
@@ -94,12 +98,9 @@ def  brandByID(id):
 
 #update brand by ID
 @brandsapi.route('/brands/update/<id>/', methods=['PUT'])
+@jwt_required()
 def updateBrand(id):
 
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message': decison}), 401
-    
     if ObjectId.is_valid(id) == False:
         return   make_response(jsonify({"error": "invalid ID"}), 400)
     
@@ -119,11 +120,11 @@ def updateBrand(id):
 
 #Delete a brand  by ID
 @brandsapi.route('/brands/delete/<id>/', methods=['DELETE'])
+@jwt_required()
 def deleteBrand(id):
 
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message': decison}), 401
+    if ObjectId.is_valid(id) == False:
+        return   make_response(jsonify({"error": "invalid ID"}), 400)
 
     try:
         brands.delete_one({'_id': ObjectId(id)})

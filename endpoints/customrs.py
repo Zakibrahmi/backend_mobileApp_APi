@@ -411,5 +411,66 @@ def allcustomers():
     resp.status_code = 200
     return resp
 
+# Admin management """"""""""""""""""""""""""
+# Add Admin
+@customersapi.route('/admin/register/', methods=['POST'])
+def createAdmin():
+
+    if not request.json:
+        abort(400)
+    if 'name' not in request.json or 'password' not in request.json or 'email' not in request.json:
+        abort(400) 
+        
+    customer = request.get_json()
+    user = admins.find_one({'email': customer['email']})
+    if user:
+        resp = jsonify({"message": "An account already registered by this Email"})
+        resp.status_code = 404
+        return resp
+    
+    customer['created'] = time.strftime('%d/%m/%y', time.localtime())
+    customer['password'] = generate_password_hash(customer['password'])
+    try:
+        res = admins.insert_one(customer)
+    except Exception:
+        return internalServer()
+
+    u = admins.find_one({'_id': ObjectId(res.inserted_id)}, {'password': 0} )
+    resp = jsonify(json.loads(json_util.dumps(u)))
+    resp.status_code = 200
+    return resp
+
+# Login Admin
+@customersapi.route('/admin/logIn', methods=['POST'])
+def login():
+
+    if not request.json:
+        abort(400)
+    if 'email' not in request.json or 'password' not in request.json:
+        abort(400) 
+
+    data = request.get_json()    
+    user = admins.find_one({'email': data['email']})
+
+    # Email not exist in dataBase
+    if user == None:
+        resp = jsonify({"message": "This Email not exist in database"})
+        resp.status_code = 404
+        return resp
+
+    if check_password_hash(user['password'], data['password']):
+
+        access_token = create_access_token(identity= str(user['_id']), fresh=True)
+        refresh_token = create_refresh_token(identity= str(user['_id']))
+
+        user['token'] = access_token
+        user['refresh'] = refresh_token
+        return jsonify({'ok': True, 'data': json.loads(json_util.dumps(user))}), 200
+        
+    else:
+        resp = jsonify({'message' : 'Bad Request - invalid password'})
+        resp.status_code = 400
+        return resp
+
 if __name__ == '__main__':
     app.run(debug=True)
