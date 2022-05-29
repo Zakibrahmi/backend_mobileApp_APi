@@ -31,7 +31,10 @@ def internalServer(error):
 
 @productapi.route('/products/add', methods=['POST'])
 def addProducts():
-
+   
+    decison = token_required_admin(request.headers)
+    if decison != "authorized":
+        return jsonify({'message': decison}), 401
    
     if not request.json:
         abort(400)

@@ -32,13 +32,15 @@ def internalServer(error):
 @collectionsapi.route('/admin/collections/add', methods=['POST'])
 def addCollection():
 
+    decison = token_required_admin(request.headers)
+    if decison != "authorized":
+        return jsonify({'message': decison}), 401
     if not request.json:
         abort(400)
    
     if 'title' in request.json and isinstance(request.json['title'], str) == False:
         abort(400)
-    if 'products' not in request.json:
-        abort(400)
+   
     if  'products' not in request.json or "type" not in request.json: 
         abort(400)
    
@@ -82,7 +84,7 @@ def collectionByID(id):
 @collectionsapi.route('/collections/update/<state>/<id>/', methods=['PUT'])
 def updateCollectionState(id, state):
 
-    decison = token_required(request.headers)
+    decison = token_required_admin(request.headers)
     if decison != "authorized":
         return jsonify({'message': decison}), 401
     
@@ -114,7 +116,7 @@ def updateCollectionState(id, state):
 @collectionsapi.route('/collections/update/<id>/', methods=['PUT'])
 def updateCollectionState(id, state):
 
-    decison = token_required(request.headers)
+    decison = token_required_admin(request.headers)
     if decison != "authorized":
         return jsonify({'message': decison}), 401
     

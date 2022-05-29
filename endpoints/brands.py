@@ -61,23 +61,25 @@ def allBrands():
 @brandsapi.route('/brands/add/', methods=['POST'])
 def addBrand():  
    
-   
-  if not request.json:
+    decison = token_required_admin(request.headers)
+    if decison != "authorized":
+        return jsonify({'message': decison}), 401
+    if not request.json:
         abort(400)
-  if 'title' not in request.json:
+    if 'title' not in request.json:
         abort(400) 
         
-  brd = request.get_json()
-  try:
+    brd = request.get_json()
+    try:
         res = brands.insert_one(brd)
-  except Exception:
+    except Exception:
         return internalServer()
 
-  u = brands.find_one({'_id': ObjectId(res.inserted_id)})
-  resp = jsonify(json.loads(json_util.dumps(u)))
-  resp.status_code = 200
+    u = brands.find_one({'_id': ObjectId(res.inserted_id)})
+    resp = jsonify(json.loads(json_util.dumps(u)))
+    resp.status_code = 200
   
-  return resp
+    return resp
   
 # get brand by ID
 @brandsapi.route('/brands/get/<id>', methods=['GET'])
