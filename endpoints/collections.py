@@ -30,7 +30,7 @@ def internalServer(error):
 
 
 @collectionsapi.route('/admin/collections/add', methods=['POST'])
-@jwt_required()
+#@jwt_required()
 def addCollection():
 
     
@@ -81,7 +81,7 @@ def collectionByID(id):
 
 # update state of the collecion 
 @collectionsapi.route('/collections/update/<state>/<id>/', methods=['PUT'])
-@jwt_required()
+#@jwt_required()
 def updateCollectionState(id, state):
 
    
@@ -112,7 +112,7 @@ def updateCollectionState(id, state):
 
 # update  collecion 
 @collectionsapi.route('/collections/update/<id>/', methods=['PUT'])
-@jwt_required()
+#@jwt_required()
 def updateCollectionState(id, state):
     
     if ObjectId.is_valid(id) == False:
@@ -139,7 +139,7 @@ def updateCollectionState(id, state):
     return resp
 #Delete a collection  by ID
 @collectionsapi.route('/collections/delete/<id>/', methods=['DELETE'])
-@jwt_required()
+#@jwt_required()
 def deleteCollection(id):
 
    

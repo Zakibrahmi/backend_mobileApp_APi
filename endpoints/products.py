@@ -30,7 +30,7 @@ def internalServer(error):
 
 
 @productapi.route('/products/add', methods=['POST'])
-@jwt_required()
+#@jwt_required()
 def addProducts():
    
     if not request.json:
@@ -142,7 +142,7 @@ def searchByName(name):
 
 # update  producct 
 @productapi.route('/products/update/<id>', methods=['PUT'])
-@jwt_required()
+#@jwt_required()
 def updateProduct(id):
 
     

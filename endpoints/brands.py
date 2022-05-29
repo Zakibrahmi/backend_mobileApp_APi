@@ -63,7 +63,7 @@ def allBrands():
 
 #add catebrand
 @brandsapi.route('/brands/add/', methods=['POST'])
-@jwt_required()
+#@jwt_required()
 def addBrand():  
    
  
@@ -98,7 +98,7 @@ def  brandByID(id):
 
 #update brand by ID
 @brandsapi.route('/brands/update/<id>/', methods=['PUT'])
-@jwt_required()
+#@jwt_required()
 def updateBrand(id):
 
     if ObjectId.is_valid(id) == False:
@@ -120,7 +120,7 @@ def updateBrand(id):
 
 #Delete a brand  by ID
 @brandsapi.route('/brands/delete/<id>/', methods=['DELETE'])
-@jwt_required()
+#@jwt_required()
 def deleteBrand(id):
 
     if ObjectId.is_valid(id) == False:

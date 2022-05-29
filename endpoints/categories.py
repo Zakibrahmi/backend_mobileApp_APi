@@ -65,7 +65,7 @@ def allCategories():
 
 #add category
 @categoryapi.route('/categories/add/', methods=['POST'])
-@jwt_required()
+#@jwt_required()
 def addCategories():    
    
     if not request.json:
@@ -98,7 +98,7 @@ def packageByID(id):
 
 #update category by ID
 @categoryapi.route('/categories/update/<id>/', methods=['PUT'])
-@jwt_required()
+#@jwt_required()
 def updateCategory(id):
     
     if ObjectId.is_valid(id) == False:
@@ -120,7 +120,7 @@ def updateCategory(id):
 
 #Delete a categroeis  by ID
 @categoryapi.route('/categories/delete/<id>/', methods=['DELETE'])
-@jwt_required()
+#@jwt_required()
 def deleteCat(id):
    
     if ObjectId.is_valid(id) == False:

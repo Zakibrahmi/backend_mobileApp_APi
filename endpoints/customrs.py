@@ -93,9 +93,9 @@ def createCustomer():
     resp.status_code = 200
     return resp
 
-# update  customer account/password
+# update  customer account
 @customersapi.route('/customers', methods=['PUT'])
-@jwt_required(refresh=True)
+#@jwt_required(refresh=True)
 def updateCustomer():
 
     if not request.json:
