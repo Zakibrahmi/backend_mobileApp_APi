@@ -60,7 +60,6 @@ def addProducts():
 #get All products 
 @productapi.route('/products/getAll/', methods=['GET'])
 def allProducts():
-    
     output = []
     for d in products.find().sort('created', -1):
         output.append(json.loads(json_util.dumps(d)))

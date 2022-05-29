@@ -13,6 +13,8 @@ from endpoints.customrs import  customersapi
 from endpoints.products import  productapi
 from endpoints.settings import  settingsapi
 from endpoints.collections import collectionsapi
+from endpoints.categories import categoryapi
+from flask_cors import CORS
 
 
 app = Flask(__name__)
@@ -20,6 +22,11 @@ app.config["JWT_SECRET_KEY"] = "004f2af45d3a4e1578b1a7dd2d17fdae47f"  # Change t
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=3)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 #app.config['JWT_ALGORITHM'] = 'HS512'
+ # Allow CORS
+CORS(app,
+    resources={r"*": {"origins": "http://localhost:3000",}},
+    expose_headers=["Content-Type", "X-CSRFToken"],
+    supports_credentials=True,)
 
 jwt = JWTManager(app)
 
@@ -28,3 +35,4 @@ app.register_blueprint(productapi, url_prefix="/")
 app.register_blueprint(customersapi, url_prefix="/")
 app.register_blueprint(settingsapi, url_prefix="/")
 app.register_blueprint(collectionsapi, url_prefix="/")
+app.register_blueprint(categoryapi, url_prefix="/")
