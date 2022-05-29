@@ -31,7 +31,10 @@ def internalServer(error):
 
 @productapi.route('/products/add', methods=['POST'])
 def addProducts():
-
+   
+    decison = token_required_admin(request.headers)
+    if decison != "authorized":
+        return jsonify({'message': decison}), 401
    
     if not request.json:
         abort(400)
@@ -137,6 +140,47 @@ def searchByName(name):
     resp = jsonify(output)
     resp.status_code = 200
     return resp
+
+
+# update  producct 
+@productapi.route('/products/update/<id>', methods=['PUT'])
+def updateProduct(id):
+
+    decison = token_required_admin(request.headers)
+    if decison != "authorized":
+        return jsonify({'message' : decison}), 401
+    #
+    if ObjectId.is_valid(id) == False:
+        return id_inalid(id)
+    
+    if not request.json:
+        abort(400)
+  
+    col = products.find_one({'_id': ObjectId(id)})
+           
+    if col ==None:
+        resp = jsonify({"message": "product does not exist in database"})
+        resp.status_code = 404
+        return resp
+    
+    if 'code' in request.json and isinstance(request.json['code'], str) == False:
+        abort(400)  
+    if 'title' in request.json and isinstance(request.json['title'], str) == False:
+        abort(400)
+    if 'description' in request.json and isinstance(request.json['description'], str) == False:
+        abort(400)
+    if  'price' not in request.json or 'title' not in request.json or 'category' not in request.json or 'currency' not in request.json: 
+        abort(400)
+    
+    prod = request.get_json()    
+    
+    try:
+        res = customers.update_one({'_id': ObjectId(id)}, {'$set': prod})
+    except Exception:
+        abort(500)
+    
+    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -15,19 +15,19 @@ import operator
 from . import *
 
 app = Flask(__name__)
-categoryapi = Blueprint(name="categoryapi", import_name=__name__)
+brandsapi = Blueprint(name="brandsapi", import_name=__name__)
 
 
 #traitement erreur 
-@categoryapi.errorhandler(400)
+@brandsapi.errorhandler(400)
 def create_failed(error):
   return make_response(jsonify({"error": "bad input"}), 400)
   
-@categoryapi.errorhandler(500)
+@brandsapi.errorhandler(500)
 def internalServer(error):
   return make_response(jsonify({'error': 'Internal Server Error' }), 500)
 
-@categoryapi.errorhandler(403)
+@brandsapi.errorhandler(403)
 def user_notfound(id):
     message = {
                'status': 403,
@@ -36,7 +36,7 @@ def user_notfound(id):
     resp = jsonify(message)
     return resp
 
-@categoryapi.errorhandler(403)
+@brandsapi.errorhandler(403)
 def not_found(error=None):
     message = {
                'status': 404,
@@ -46,11 +46,11 @@ def not_found(error=None):
     resp.status_code = 404
     return resp
 
-#get ALl categories
-@categoryapi.route('/categories/', methods=['GET'])
-def allCategories():  
+#get ALl brands
+@brandsapi.route('/brands/', methods=['GET'])
+def allBrands():  
    output = []
-   for d in categories.find():
+   for d in brands.find():
         output.append(json.loads(json_util.dumps(d)))         
        
    resp = jsonify(output)
@@ -58,40 +58,43 @@ def allCategories():
    return resp
 
 #add category
-@categoryapi.route('/categories/add/', methods=['POST'])
-def addCategories():  
+@brandsapi.route('/brands/add/', methods=['POST'])
+def addBrand():  
    
-   
-  if not request.json:
+    decison = token_required_admin(request.headers)
+    if decison != "authorized":
+        return jsonify({'message': decison}), 401
+    if not request.json:
         abort(400)
-  if 'title' not in request.json:
+    if 'title' not in request.json:
         abort(400) 
         
-  category = request.get_json()
-  try:
-        res = categories.insert_one(category)
-  except Exception:
+    brd = request.get_json()
+    try:
+        res = brands.insert_one(brd)
+    except Exception:
         return internalServer()
 
-  u = categories.find_one({'_id': ObjectId(res.inserted_id)})
-  resp = jsonify(json.loads(json_util.dumps(u)))
-  resp.status_code = 200
-  return resp
+    u = brands.find_one({'_id': ObjectId(res.inserted_id)})
+    resp = jsonify(json.loads(json_util.dumps(u)))
+    resp.status_code = 200
   
-# get category by ID
-@categoryapi.route('/categories/get/<id>', methods=['GET'])
-def packageByID(id): 
+    return resp
+  
+# get brand by ID
+@brandsapi.route('/brands/get/<id>', methods=['GET'])
+def  brandByID(id): 
     
-    package = categories.find_one({'_id': ObjectId(id)})
-    if package == None:
+    brd = brands.find_one({'_id': ObjectId(id)})
+    if brd == None:
       return not_found()
-    resp = jsonify(json.loads(json_util.dumps(package)))
+    resp = jsonify(json.loads(json_util.dumps(brd)))
     resp.status_code=200
     return resp
 
-#update category by ID
-@categoryapi.route('/categories/update/<id>/', methods=['PUT'])
-def updateCategory(id):
+#update brand by ID
+@brandsapi.route('/brands/update/<id>/', methods=['PUT'])
+def updateBrand(id):
 
     decison = token_required_admin(request.headers)
     if decison != "authorized":
@@ -108,15 +111,15 @@ def updateCategory(id):
     
     cat = request.get_json()
     try:
-        res = categories.update_one({'_id': ObjectId(id)}, {'$set': cat})
+        res = brands.update_one({'_id': ObjectId(id)}, {'$set': cat})
     except Exception:
         abort(500)
     
-    return jsonify(json.loads(json_util.dumps(categories.find_one({'_id': ObjectId(id)}))))
+    return jsonify(json.loads(json_util.dumps(brands.find_one({'_id': ObjectId(id)}))))
 
-#Delete a categroeis  by ID
-@categoryapi.route('/categories/delete/<id>/', methods=['DELETE'])
-def deleteCat(id):
+#Delete a brand  by ID
+@brandsapi.route('/brands/delete/<id>/', methods=['DELETE'])
+def deleteBrand(id):
 
     decison = token_required_admin(request.headers)
     if decison != "authorized":
@@ -128,7 +131,8 @@ def deleteCat(id):
         abort(500)
 
     return success()
-               
+
+                
 if __name__ == '__main__':
     app.run(debug=True)
 
