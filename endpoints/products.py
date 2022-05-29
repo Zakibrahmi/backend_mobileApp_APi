@@ -142,7 +142,6 @@ def searchByName(name):
 
 # update  producct 
 @productapi.route('/products/update/<id>', methods=['PUT'])
-
 def updateProduct(id):
 
     decison = token_required_admin(request.headers)
@@ -155,6 +154,13 @@ def updateProduct(id):
     if not request.json:
         abort(400)
   
+    col = products.find_one({'_id': ObjectId(id)})
+           
+    if col ==None:
+        resp = jsonify({"message": "product does not exist in database"})
+        resp.status_code = 404
+        return resp
+    
     if 'code' in request.json and isinstance(request.json['code'], str) == False:
         abort(400)  
     if 'title' in request.json and isinstance(request.json['title'], str) == False:
