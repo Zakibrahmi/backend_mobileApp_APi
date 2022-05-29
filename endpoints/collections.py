@@ -29,11 +29,10 @@ def internalServer(error):
 
 
 @collectionsapi.route('/admin/collections/add', methods=['POST'])
+#@jwt_required()
 def addCollection():
 
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message': decison}), 401
+    
     if not request.json:
         abort(400)
    
@@ -81,11 +80,10 @@ def collectionByID(id):
 
 # update state of the collecion 
 @collectionsapi.route('/collections/update/<state>/<id>/', methods=['PUT'])
+#@jwt_required()
 def updateCollectionState(id, state):
 
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message': decison}), 401
+   
     
     if ObjectId.is_valid(id) == False:
         return   make_response(jsonify({"error": "invalid ID"}), 400)
@@ -113,11 +111,8 @@ def updateCollectionState(id, state):
 
 # update  collecion 
 @collectionsapi.route('/collections/update/<id>/', methods=['PUT'])
+#@jwt_required()
 def updateCollection(id, state):
-
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message': decison}), 401
     
     if ObjectId.is_valid(id) == False:
         return   make_response(jsonify({"error": "invalid ID"}), 400)
@@ -143,12 +138,10 @@ def updateCollection(id, state):
     return resp
 #Delete a collection  by ID
 @collectionsapi.route('/collections/delete/<id>/', methods=['DELETE'])
+#@jwt_required()
 def deleteCollection(id):
 
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message': decison}), 401
-
+   
     try:
         collections.delete_one({'_id': ObjectId(id)})
     except Exception:

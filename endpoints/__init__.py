@@ -16,5 +16,6 @@ settings = mongo.db.settings
 categories = mongo.db.categories
 collections = mongo.db.collections
 brands = mongo.db.brands
+admins = mongo.db.admins
 
 

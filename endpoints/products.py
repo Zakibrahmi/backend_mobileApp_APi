@@ -30,11 +30,8 @@ def internalServer(error):
 
 
 @productapi.route('/products/add', methods=['POST'])
+#@jwt_required()
 def addProducts():
-   
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message': decison}), 401
    
     if not request.json:
         abort(400)
@@ -144,12 +141,10 @@ def searchByName(name):
 
 # update  producct 
 @productapi.route('/products/update/<id>', methods=['PUT'])
+#@jwt_required()
 def updateProduct(id):
 
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message' : decison}), 401
-    #
+    
     if ObjectId.is_valid(id) == False:
         return id_inalid(id)
     

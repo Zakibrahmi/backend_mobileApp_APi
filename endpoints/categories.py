@@ -12,6 +12,11 @@ from bson import objectid, json_util
 from endpoints.utilsFunction import *
 import time
 import operator
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_refresh_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
 from . import *
 
 app = Flask(__name__)
@@ -48,6 +53,7 @@ def not_found(error=None):
 
 #get ALl categories
 @categoryapi.route('/categories/', methods=['GET'])
+
 def allCategories():  
    output = []
    for d in categories.find():
@@ -59,27 +65,28 @@ def allCategories():
 
 #add category
 @categoryapi.route('/categories/add/', methods=['POST'])
-def addCategories():  
+#@jwt_required()
+def addCategories():    
    
-   
-  if not request.json:
+    if not request.json:
         abort(400)
-  if 'title' not in request.json:
+    if 'title' not in request.json:
         abort(400) 
         
-  category = request.get_json()
-  try:
+    category = request.get_json()
+    try:
         res = categories.insert_one(category)
-  except Exception:
+    except Exception:
         return internalServer()
 
-  u = categories.find_one({'_id': ObjectId(res.inserted_id)})
-  resp = jsonify(json.loads(json_util.dumps(u)))
-  resp.status_code = 200
-  return resp
+    u = categories.find_one({'_id': ObjectId(res.inserted_id)})
+    resp = jsonify(json.loads(json_util.dumps(u)))
+    resp.status_code = 200
+    return resp
   
 # get category by ID
 @categoryapi.route('/categories/get/<id>', methods=['GET'])
+
 def packageByID(id): 
     
     package = categories.find_one({'_id': ObjectId(id)})
@@ -91,11 +98,8 @@ def packageByID(id):
 
 #update category by ID
 @categoryapi.route('/categories/update/<id>/', methods=['PUT'])
+#@jwt_required()
 def updateCategory(id):
-
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message': decison}), 401
     
     if ObjectId.is_valid(id) == False:
         return   make_response(jsonify({"error": "invalid ID"}), 400)
@@ -116,14 +120,14 @@ def updateCategory(id):
 
 #Delete a categroeis  by ID
 @categoryapi.route('/categories/delete/<id>/', methods=['DELETE'])
+#@jwt_required()
 def deleteCat(id):
-
-    decison = token_required_admin(request.headers)
-    if decison != "authorized":
-        return jsonify({'message': decison}), 401
-
+   
+    if ObjectId.is_valid(id) == False:
+        return   make_response(jsonify({"error": "invalid ID"}), 400)
+    
     try:
-        brands.delete_one({'_id': ObjectId(id)})
+        categories.delete_one({'_id': ObjectId(id)})
     except Exception:
         abort(500)
 
