@@ -1,3 +1,4 @@
+from logging.config import IDENTIFIER
 from math import trunc
 from flask import request, make_response, abort, session
 
@@ -99,9 +100,9 @@ def createCustomer():
     return jsonify({'ok': True, 'data': json.loads(json_util.dumps(user))}), 200
 
 # update  customer account
-@customersapi.route('/customers', methods=['PUT'])
+@customersapi.route('/customers/<id>/', methods=['PUT'])
 #@jwt_required(refresh=True)
-def updateCustomer():
+def updateCustomer(id):
 
     if not request.json:
         abort(400)
@@ -120,15 +121,15 @@ def updateCustomer():
         abort(400)
     
     customer = request.get_json()
-    customerId = get_jwt_identity()
+    #customerId = get_jwt_identity()
     customer['password'] = generate_password_hash(customer['password'])
     
     try:
-        res = customers.update_one({'_id': ObjectId(customerId)}, {'$set': customer})
+        res = customers.update_one({'_id': ObjectId(id)}, {'$set': customer})
     except Exception:
         abort(500)
     
-    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(customerId)}))))
+    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
 
 
 # get customer by ID
@@ -142,33 +143,33 @@ def getUserByID(iduser):
 
 
 # update shipping adress
-@customersapi.route('/users/update/shippingAdress', methods=['PUT'])
-@jwt_required()
-def updateAdress():
+@customersapi.route('/users/update/shippingAdress/<id>/', methods=['PUT'])
+#@jwt_required()
+def updateAdress(id):
 
     if not request.json:
         abort(400)
 
-    idCutomer = get_jwt_identity()
+    #idCutomer = get_jwt_identity()
     try:
-        res = customers.update_one({'_id': ObjectId(idCutomer)}, {'$set': {"shippingAdress": request.get_json()}})
+        res = customers.update_one({'_id': ObjectId(id)}, {'$set': {"shippingAdress": request.get_json()}})
     except Exception:
         abort(500)
 
     if res.modified_count == 0:
-        return user_notfound(idCutomer)
+        return user_notfound(id)
     return success()
 
 # add the  favoris product  "idfavoris" to the favorites list of the custorm  idcustomer
-@customersapi.route('/customers/favoris/<idfavoris>', methods=['PUT'])
-@jwt_required()
-def customerAddFavoris(idfavoris):
+@customersapi.route('/customers/favoris/<idfavoris>/<idc>/', methods=['PUT'])
+#@jwt_required()
+def customerAddFavoris(idfavoris, idc):
 
-    idcustomer = get_jwt_identity()
+    #idcustomer = get_jwt_identity()
     if ObjectId.is_valid(idfavoris) == False:
         return id_inalid(idfavoris)
 
-    user = customers.find_one({'_id': ObjectId(idcustomer)})
+    user = customers.find_one({'_id': ObjectId(idc)})
     product = products.find_one({'_id': ObjectId(idfavoris)})
     # user of provier not exist in dataBase
     if user == None or product == None:
@@ -177,18 +178,18 @@ def customerAddFavoris(idfavoris):
         return resp
     # Exist: update collection user
     try:
-        customers.update_one({'_id': ObjectId(idcustomer)}, {'$addToSet': {"favoris": ObjectId(idfavoris)}})
+        customers.update_one({'_id': ObjectId(idc)}, {'$addToSet': {"favoris": ObjectId(idfavoris)}})
     except Exception:
         return jsonify({"message": "update failed "})
     return success()
 
 # get All user favorites
-@customersapi.route('/customers/favoris', methods=['GET'])
-@jwt_required()
-def getFavoris():
+@customersapi.route('/customers/favoris/<id>/', methods=['GET'])
+#@jwt_required()
+def getFavoris(id):
 
-    iduser = get_jwt_identity()
-    favoris = customers.find_one({'_id': ObjectId(iduser)}, {"favoris": 1, '_id':0})
+    #iduser = get_jwt_identity()
+    favoris = customers.find_one({'_id': ObjectId(id)}, {"favoris": 1, '_id':0})
     # user of provier not exist in dataBase
     if favoris == None:
         resp = jsonify({"message": "user not exist in database"})
@@ -205,16 +206,16 @@ def getFavoris():
     return resp
 
 # remove idfavoris  from  favorites list
-@customersapi.route('/customers/favoris/delete/<idfavoris>', methods=['PUT'])
-@jwt_required()
-def userRemoveFavoris(idfavoris):
+@customersapi.route('/customers/favoris/delete/<idc>/<idfavoris>', methods=['PUT'])
+#@jwt_required()
+def userRemoveFavoris(idc, idfavoris):
 
-    iduser = get_jwt_identity()
+    #iduser = get_jwt_identity()
     
     if ObjectId.is_valid(idfavoris) == False:
         return id_inalid(idfavoris)
 
-    user = customers.find_one({'_id': ObjectId(iduser)})
+    user = customers.find_one({'_id': ObjectId(idc)})
     prod = products.find_one({'_id': ObjectId(idfavoris)})
     # user of provier not exist in dataBase
     if user == None or prod == None:
@@ -224,25 +225,25 @@ def userRemoveFavoris(idfavoris):
     
     # Exist: remove the favoris idfavoris
     try:
-        customers.update_one({'_id': ObjectId(iduser)}, { '$pull': {"favoris": ObjectId(idfavoris)}})
+        customers.update_one({'_id': ObjectId(idc)}, { '$pull': {"favoris": ObjectId(idfavoris)}})
     except Exception:
        abort(500)
 
     return success()
 
 # add notification to the user "iduser"
-@customersapi.route('/customers/notifications/add', methods=['PUT'])
-@jwt_required()
-def userAddnotification():
+@customersapi.route('/customers/notifications/add/<id>/', methods=['PUT'])
+#@jwt_required()
+def userAddnotification(id):
 
-    iduser = get_jwt_identity()
+    #iduser = get_jwt_identity()
     
     if not request.json:
         abort(400)
     if 'description' not in request.json:
         abort(400)
    
-    user = customers.find_one({'_id': ObjectId(iduser)})
+    user = customers.find_one({'_id': ObjectId(id)})
     # user of provier not exist in dataBase
     if user == None:
         resp = jsonify({"message": "user not exist in database"})
@@ -254,7 +255,7 @@ def userAddnotification():
 
     notfication['date'] = time.strftime('%d/%m/%y', time.localtime())
     try:
-        customers.update_one({'_id': ObjectId(iduser)}, {
+        customers.update_one({'_id': ObjectId(id)}, {
                          '$push': {"notifications": notfication}})
     except Exception:
         message = {
@@ -267,13 +268,13 @@ def userAddnotification():
     return success()
 
 # get All notifications of the user iduser
-@customersapi.route('/customers/notifications', methods=['GET'])
-@jwt_required()
-def getNotifications():
+@customersapi.route('/customers/notifications/<id>/', methods=['GET'])
+#@jwt_required()
+def getNotifications(id):
   
-    iduser = get_jwt_identity()
+    #iduser = get_jwt_identity()
     
-    notifications = customers.find({'_id': ObjectId(iduser)}, {"notifications": 1, '_id': 0})
+    notifications = customers.find({'_id': ObjectId(id)}, {"notifications": 1, '_id': 0})
     
     # user of provier not exist in dataBase
     if notifications == None:
@@ -290,40 +291,40 @@ def getNotifications():
     return resp
 
 # delete all notifications
-@customersapi.route('/customers/notifications/deleteAll', methods=['put'])
-@jwt_required()
-def deleteAllNotifications():
+@customersapi.route('/customers/notifications/deleteAll/<id>/', methods=['put'])
+#@jwt_required()
+def deleteAllNotifications(id):
 
-    iduser = get_jwt_identity()
+    #iduser = get_jwt_identity()
 
-    customer = customers.find_one({'_id': ObjectId(iduser)})
+    customer = customers.find_one({'_id': ObjectId(id)})
     if customer == None:
-        return user_notfound(iduser)
+        return user_notfound(IDENTIFIER)
     if 'notifications' not in customer:
         return jsonify({'msg': 'There is no notification'}), 404 
     
     try:
-        res = customers.update_one({'_id': ObjectId(iduser)}, {'$set': {"notifications": []}})
+        res = customers.update_one({'_id': ObjectId(id)}, {'$set': {"notifications": []}})
     except Exception:
         abort(500)     
 
     return success()
 
 # Delete the notification idNotification
-@customersapi.route('/customers/notifications/deleteOne/<idNotification>', methods=['PUT'])
-@jwt_required()
-def deleteOneNotification(idNotification):
+@customersapi.route('/customers/notifications/deleteOne/<idc>/<idNotification>', methods=['PUT'])
+#@jwt_required()
+def deleteOneNotification(idc, idNotification):
 
-    idUser = get_jwt_identity()
+    #idUser = get_jwt_identity()
     
-    customer = customers.find_one({'_id': ObjectId(idUser)})
+    customer = customers.find_one({'_id': ObjectId(id)})
 
     if customer == None:
-        return user_notfound(idUser)
+        return user_notfound(id)
     if 'notifications' not in customer:
         return jsonify({'msg': 'There is no notification'}), 404 
     try:        
-        res = customers.update_one({'_id': ObjectId(idUser)}, {'$pull': {"notifications": {"id": idNotification}}})
+        res = customers.update_one({'_id': ObjectId(id)}, {'$pull': {"notifications": {"id": idNotification}}})
     except Exception:
         abort(500)
        
@@ -333,12 +334,12 @@ def deleteOneNotification(idNotification):
   #Order
 #####################################################
 # get All order of the user iduser
-@customersapi.route('/customers/orders', methods=['GET'])
-@jwt_required()
+@customersapi.route('/customers/orders/<id>/', methods=['GET'])
+#@jwt_required()
 def getAllOrders():
   
-    iduser = get_jwt_identity()
-    orders = customers.find({'_id': ObjectId(iduser)}, {"orders": 1, '_id': 0})
+   # iduser = get_jwt_identity()
+    orders = customers.find({'_id': ObjectId(id)}, {"orders": 1, '_id': 0})
     
     # user of provier not exist in dataBase
     if orders == None:
