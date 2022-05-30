@@ -88,10 +88,15 @@ def createCustomer():
     except Exception:
         return internalServer()
 
-    u = customers.find_one({'_id': ObjectId(res.inserted_id)}, {'password': 0} )
+    user = customers.find_one({'_id': ObjectId(res.inserted_id)}, {'password': 0} )
     resp = jsonify(json.loads(json_util.dumps(u)))
-    resp.status_code = 200
-    return resp
+    
+    access_token = create_access_token(identity= str(user['_id']), fresh=True)
+    refresh_token = create_refresh_token(identity= str(user['_id']))
+
+    user['token'] = access_token
+    user['refresh'] = refresh_token
+    return jsonify({'ok': True, 'data': json.loads(json_util.dumps(user))}), 200
 
 # update  customer account
 @customersapi.route('/customers', methods=['PUT'])
