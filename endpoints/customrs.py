@@ -442,7 +442,7 @@ def createAdmin():
 
 # Login Admin
 @customersapi.route('/admin/logIn', methods=['POST'])
-def login():
+def loginAdmin():
 
     if not request.json:
         abort(400)

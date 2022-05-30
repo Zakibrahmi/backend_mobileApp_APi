@@ -37,11 +37,11 @@ def addProducts():
         abort(400)
     if 'code' in request.json and isinstance(request.json['code'], str) == False:
         abort(400)  
-    if 'title' in request.json and isinstance(request.json['title'], str) == False:
+    if 'name' in request.json and isinstance(request.json['name'], str) == False:
         abort(400)
     if 'description' in request.json and isinstance(request.json['description'], str) == False:
         abort(400)
-    if  'price' not in request.json or 'title' not in request.json or 'category' not in request.json: 
+    if  'price' not in request.json or 'name' not in request.json or 'category' not in request.json: 
         abort(400)
    
     project = request.get_json()
