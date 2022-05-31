@@ -164,7 +164,7 @@ def updateProduct(id):
         abort(400)
     if 'description' in request.json and isinstance(request.json['description'], str) == False:
         abort(400)
-    if  'price' not in request.json or 'title' not in request.json or 'category' not in request.json or 'currency' not in request.json: 
+    if  'price' not in request.json or 'title' not in request.json or 'category' not in request.json: 
         abort(400)
     
     prod = request.get_json()    
