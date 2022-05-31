@@ -143,8 +143,6 @@ def searchByName(name):
 @productapi.route('/products/update/<id>', methods=['PUT'])
 #@jwt_required()
 def updateProduct(id):
-
-    
     if ObjectId.is_valid(id) == False:
         return id_inalid(id)
     
@@ -170,7 +168,7 @@ def updateProduct(id):
     prod = request.get_json()    
     
     try:
-        res = customers.update_one({'_id': ObjectId(id)}, {'$set': prod})
+        res = products.update_one({'_id': ObjectId(id)}, {'$set': prod})
     except Exception:
         abort(500)
     
