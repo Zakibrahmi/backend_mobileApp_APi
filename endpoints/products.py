@@ -69,7 +69,7 @@ def allProducts():
     return resp
 
 #Search products by category 
-@productapi.route('/products/get/<category>', methods=['GET'])
+@productapi.route('/products/get/cat/<category>', methods=['GET'])
 def productsByCategory(category):
     
     output = []
