@@ -24,7 +24,7 @@ app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 #app.config['JWT_ALGORITHM'] = 'HS512'
  # Allow CORS
 CORS(app,
-    resources={r"*": {"origins": "http://localhost:3000",}},
+    resources={r"*": {"origins": "*"}},
     expose_headers=["Content-Type", "X-CSRFToken"],
     supports_credentials=True,)
 

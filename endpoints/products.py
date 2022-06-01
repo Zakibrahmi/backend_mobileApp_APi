@@ -174,6 +174,32 @@ def updateProduct(id):
     
     return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
 
+# update  producct 
+@productapi.route('/products/update/state/<id>', methods=['PUT'])
+#@jwt_required()
+def updateProductState(id):
+    if ObjectId.is_valid(id) == False:
+        return id_inalid(id)
+    
+    if not request.json:
+        abort(400)
+  
+    col = products.find_one({'_id': ObjectId(id)})
+           
+    if col ==None:
+        resp = jsonify({"message": "product does not exist in database"})
+        resp.status_code = 404
+        return resp
+    
+    prod = request.get_json()    
+    
+    try:
+        res = products.update_one({'_id': ObjectId(id)}, {'$set': prod})
+    except Exception:
+        abort(500)
+    
+    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

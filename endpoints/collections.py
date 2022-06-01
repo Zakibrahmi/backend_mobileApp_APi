@@ -112,7 +112,7 @@ def updateCollectionState(id, state):
 # update  collecion 
 @collectionsapi.route('/collections/update/<id>/', methods=['PUT'])
 #@jwt_required()
-def updateCollection(id, state):
+def updateCollection(id):
     
     if ObjectId.is_valid(id) == False:
         return   make_response(jsonify({"error": "invalid ID"}), 400)
