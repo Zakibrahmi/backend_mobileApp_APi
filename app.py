@@ -28,6 +28,7 @@ CORS(app,
     expose_headers=["Content-Type", "X-CSRFToken"],
     supports_credentials=True,)
 
+
 jwt = JWTManager(app)
 
 # register blueprints. ensure that all paths are versioned!

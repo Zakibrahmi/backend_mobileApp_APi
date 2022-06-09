@@ -66,8 +66,7 @@ def createCustomer():
         abort(400)
     if isinstance(request.json['password'], str) == False:
         abort(400)
-    if 'city' in request.json and isinstance(request.json['city'], str) == False:
-        abort(400)
+    
     if 'counrty' in request.json and isinstance(request.json['counrty'], str) == False:
         abort(400)
     if isinstance(request.json['email'], str) == False:
@@ -90,14 +89,15 @@ def createCustomer():
         return internalServer()
 
     user = customers.find_one({'_id': ObjectId(res.inserted_id)}, {'password': 0} )
-    resp = jsonify(json.loads(json_util.dumps(u)))
+    resp = jsonify(json.loads(json_util.dumps(user)))
     
     access_token = create_access_token(identity= str(user['_id']), fresh=True)
     refresh_token = create_refresh_token(identity= str(user['_id']))
 
+   
     user['token'] = access_token
     user['refresh'] = refresh_token
-    return jsonify({'ok': True, 'data': json.loads(json_util.dumps(user))}), 200
+    return jsonify({'ok': True, 'user': json.loads(json_util.dumps(user))}), 200
 
 # update  customer account
 @customersapi.route('/customers/<id>/', methods=['PUT'])
@@ -158,7 +158,8 @@ def updateAdress(id):
 
     if res.modified_count == 0:
         return user_notfound(id)
-    return success()
+    
+    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
 
 # add the  favoris product  "idfavoris" to the favorites list of the custorm  idcustomer
 @customersapi.route('/customers/favoris/<idfavoris>/<idc>/', methods=['PUT'])
@@ -181,7 +182,9 @@ def customerAddFavoris(idfavoris, idc):
         customers.update_one({'_id': ObjectId(idc)}, {'$addToSet': {"favoris": ObjectId(idfavoris)}})
     except Exception:
         return jsonify({"message": "update failed "})
-    return success()
+    
+    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(idc)}))))
+
 
 # get All user favorites
 @customersapi.route('/customers/favoris/<id>/', methods=['GET'])
@@ -229,7 +232,7 @@ def userRemoveFavoris(idc, idfavoris):
     except Exception:
        abort(500)
 
-    return success()
+    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(idc)}))))
 
 # add notification to the user "iduser"
 @customersapi.route('/customers/notifications/add/<id>/', methods=['PUT'])
@@ -265,7 +268,7 @@ def userAddnotification(id):
         resp = jsonify(message)
         return resp
 
-    return success()
+    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
 
 # get All notifications of the user iduser
 @customersapi.route('/customers/notifications/<id>/', methods=['GET'])
@@ -308,7 +311,7 @@ def deleteAllNotifications(id):
     except Exception:
         abort(500)     
 
-    return success()
+    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
 
 # Delete the notification idNotification
 @customersapi.route('/customers/notifications/deleteOne/<idc>/<idNotification>', methods=['PUT'])
@@ -317,18 +320,18 @@ def deleteOneNotification(idc, idNotification):
 
     #idUser = get_jwt_identity()
     
-    customer = customers.find_one({'_id': ObjectId(id)})
+    customer = customers.find_one({'_id': ObjectId(idc)})
 
     if customer == None:
-        return user_notfound(id)
+        return user_notfound(idc)
     if 'notifications' not in customer:
         return jsonify({'msg': 'There is no notification'}), 404 
     try:        
-        res = customers.update_one({'_id': ObjectId(id)}, {'$pull': {"notifications": {"id": idNotification}}})
+        res = customers.update_one({'_id': ObjectId(idc)}, {'$pull': {"notifications": {"id": idNotification}}})
     except Exception:
         abort(500)
        
-    return success()
+    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(idc)}))))
     
 #####################################################
   #Order
@@ -336,7 +339,7 @@ def deleteOneNotification(idc, idNotification):
 # get All order of the user iduser
 @customersapi.route('/customers/orders/<id>/', methods=['GET'])
 #@jwt_required()
-def getAllOrders():
+def getAllOrders(id):
   
    # iduser = get_jwt_identity()
     orders = customers.find({'_id': ObjectId(id)}, {"orders": 1, '_id': 0})
