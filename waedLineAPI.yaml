@@ -1,0 +1,498 @@
+---
+openapi: 3.0.0
+info:
+  title: WaedLine  API
+  description: This is a simple API
+  contact:
+    email: zakibrahmi@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/waedLine/apiWaedLine/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: developers
+  description: Operations available to regular developers
+paths:
+  /products/add/:
+    post:
+      tags:
+      - about products
+      summary: add product
+      parameters:
+      - name: body
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/products'
+      responses:
+        "200":
+          description: mongodb product id
+        "400":
+          description: bad input parameter
+  /products/getAll/:
+    get:
+      tags:
+      - about products
+      summary: get all products
+      responses:
+        "200":
+          description: search all products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/products'
+  /products/get/{idProduct}:
+    get:
+      tags:
+      - about products
+      summary: get product by ID
+      parameters:
+      - name: idProduct
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: search the product by ID
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/products'
+        "403":
+          description: product ID is not valid
+  /users/favoris/{idUser}/{idfavoris}:
+    put:
+      tags:
+      - about users
+      summary: add forvite provider to the user id
+      parameters:
+      - name: idUser
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: idfavoris
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: succes
+        "400":
+          description: bad input parameter
+        "403":
+          description: not found iduser
+  /users/notifications/{idUser}/:
+    put:
+      tags:
+      - about notifications
+      summary: add notification to notification list
+      parameters:
+      - name: idUser
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: body
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/notifications'
+      responses:
+        "200":
+          description: success
+        "400":
+          description: bad input parameter
+        "403":
+          description: not found iduser
+  /users/notifications/deleteAll/{idUser}/:
+    put:
+      tags:
+      - about notifications
+      summary: delete all notifications
+      parameters:
+      - name: idUser
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: success
+        "400":
+          description: bad input parameter
+        "403":
+          description: not found iduser
+  /users/notifications/deleteOne/{idUser}/{idNotification}:
+    put:
+      tags:
+      - about notifications
+      summary: delete the notification idNotification
+      parameters:
+      - name: idUser
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: idNotification
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: success
+        "400":
+          description: bad input parameter
+        "403":
+          description: not found iduser
+  /users/favoris/delete/{idUser}/{idfavoris}:
+    delete:
+      tags:
+      - about users
+      summary: remove idfavoris from list favorite of to the user id
+      parameters:
+      - name: idUser
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: idfavoris
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: succes
+        "400":
+          description: bad input parameter
+        "403":
+          description: not found iduser
+  /users/favoris/{idUser}/:
+    get:
+      tags:
+      - about users
+      summary: get  all user favorites products
+      parameters:
+      - name: idUser
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: favorite products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/products'
+        "400":
+          description: bad input parameter
+        "403":
+          description: not found iduser
+  /products/state/:
+    get:
+      tags:
+      - about products
+      summary: searches products by state
+      parameters:
+      - name: state
+        in: query
+        description: pass the state of the product for looking up projects
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/products'
+        "400":
+          description: bad input parameter
+  /products/filter/:
+    get:
+      tags:
+      - about product
+      summary: serach product based on the user's filter
+      parameters:
+      - name: body
+        in: query
+        required: true
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/filter'
+      responses:
+        "200":
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/products'
+        "400":
+          description: bad input parameter
+components:
+  schemas:
+    products:
+      required:
+      - brand
+      - category
+      - code
+      - created
+      - description
+      - discount
+      - oid
+      - price
+      - rating
+      - sexe
+      - state
+      - stock
+      - title
+      - type
+      - video
+      type: object
+      properties:
+        oid:
+          type: string
+          description: UUID of the product
+          format: uuid
+        code:
+          type: string
+          description: code of the product
+        stars:
+          type: number
+          description: rating of the product by users
+        sexe:
+          type: string
+          description: the product if Women, Man, boy, girl
+          enum:
+          - Women
+          - Man
+          - Boy
+          - girl
+        title:
+          type: string
+          description: title of the product
+        description:
+          type: string
+          description: description of the product
+          example: this item is ....
+        state:
+          type: string
+          description: state of the prodcut :[available, waiting]
+          example: waiting
+        created:
+          type: string
+          description: date creation of the product, will be generated by the API automatically
+          format: date
+          example: 0013-03-13
+        brand:
+          type: string
+          example: adidas
+        price:
+          type: array
+          description: price of the product according to currency
+          items:
+            $ref: '#/components/schemas/products_price'
+        stock:
+          type: array
+          description: available variation of the product
+          items:
+            $ref: '#/components/schemas/products_stock'
+        discount:
+          $ref: '#/components/schemas/products_discount'
+      description: description of product
+    orders:
+      required:
+      - orderDate
+      - uuid
+      - orderItems
+      - customer
+      - shipping_address
+      - total_price
+      - total_discounts
+      - state
+
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: uuid of the order, will be created by API server side
+          format: uuid
+        orderItems:
+          type: array
+          items:
+            product_uuid:
+                type: string
+                description: uuid of the product Item              
+            detail:
+              $ref: '#/components/schemas/products_attributes'
+            quantity:
+              type: integer
+            discount:
+              type: number
+              descripion: discount applied for the product Item     
+        orderDate:
+          type: string
+          description: date of the order 
+          format: date
+        shipping_address:
+          type: object
+          description: shipping address (an be different form the adress of the customer on the app)
+          properties:
+             name:
+              type: string 
+              description: name of the contact person
+            adress: 
+              type: string
+              descritpion: adress like provided by DHL..
+            phoneNumber:
+              type: string 
+          state: 
+            type: string
+            description: current state of the order such as created, shipped, etc.
+           
+    
+    
+    filter:
+      required:
+      - budget
+      - categories
+      - lastest
+      - typeSort
+      - types
+      type: object
+      properties:
+        budget:
+          type: number
+          description: max budget required for the look up project
+        categories:
+          type: array
+          items:
+            type: string
+            description: category
+        types:
+          type: array
+          items:
+            type: string
+        typeSort:
+          type: string
+          description: sort in descending or ascending order according to price or stars or creation date.
+          enum:
+          - popularity
+          - lastest
+          - HighToLow
+          - LowToHigh
+      description: filter to search products
+    products_price:
+      type: object
+      properties:
+        currency:
+          type: string
+        price:
+          type: number
+          description: price of the current currency
+        country:
+          type: string
+          description: country of the current currency
+          
+    products_attributes:
+      type: object
+      properties:
+        color:
+          type: string
+          description: color name
+          example: green
+        images:
+          type: array
+          description: set of images related to the color
+          items:
+            type: string
+            description: link of the image
+            example: https://apiwaedline.com/products/images/codeProduct.jpg
+        size:
+          type: string
+          description: available size with quantity
+          example: M
+    products_stock:
+      type: object
+      properties:
+        sku:
+          type: string
+          description: id of the instance of the product
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/products_attributes'
+        stock:
+          type: integer
+          description: available number of Product
+          example: 100
+    products_discount:
+      type: object
+      properties:
+        discountP:
+          type: number
+          description: discount %
+        form:
+          type: string
+          format: date
+          example: 0018-03-14
+        to:
+          type: string
+          format: date
+          example: 0018-04-13
+      description: available discount

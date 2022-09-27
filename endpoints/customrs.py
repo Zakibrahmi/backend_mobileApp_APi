@@ -131,7 +131,6 @@ def updateCustomer(id):
     
     return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
 
-
 # get customer by ID
 @customersapi.route('/customers/get/<iduser>', methods=['GET'])
 def getUserByID(iduser):
@@ -140,7 +139,6 @@ def getUserByID(iduser):
     resp = jsonify(json.loads(json_util.dumps(cost)))
     resp.status_code = 200
     return resp
-
 
 # update shipping adress
 @customersapi.route('/users/update/shippingAdress/<id>/', methods=['PUT'])
@@ -169,6 +167,8 @@ def customerAddFavoris(idfavoris, idc):
     #idcustomer = get_jwt_identity()
     if ObjectId.is_valid(idfavoris) == False:
         return id_inalid(idfavoris)
+    if ObjectId.is_valid(idc) == False:
+        return id_inalid(idc)
 
     user = customers.find_one({'_id': ObjectId(idc)})
     product = products.find_one({'_id': ObjectId(idfavoris)})
@@ -234,128 +234,7 @@ def userRemoveFavoris(idc, idfavoris):
 
     return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(idc)}))))
 
-# add notification to the user "iduser"
-@customersapi.route('/customers/notifications/add/<id>/', methods=['PUT'])
-#@jwt_required()
-def userAddnotification(id):
-
-    #iduser = get_jwt_identity()
     
-    if not request.json:
-        abort(400)
-    if 'description' not in request.json:
-        abort(400)
-   
-    user = customers.find_one({'_id': ObjectId(id)})
-    # user of provier not exist in dataBase
-    if user == None:
-        resp = jsonify({"message": "user not exist in database"})
-        resp.status_code = 404
-        return resp
-    # Exist: update collection customers
-    notfication = request.get_json()
-    notfication['id'] = str(uuid.uuid1())
-
-    notfication['date'] = time.strftime('%d/%m/%y', time.localtime())
-    try:
-        customers.update_one({'_id': ObjectId(id)}, {
-                         '$push': {"notifications": notfication}})
-    except Exception:
-        message = {
-            'status': 500,
-            'message': 'update problem'
-        }
-        resp = jsonify(message)
-        return resp
-
-    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
-
-# get All notifications of the user iduser
-@customersapi.route('/customers/notifications/<id>/', methods=['GET'])
-#@jwt_required()
-def getNotifications(id):
-  
-    #iduser = get_jwt_identity()
-    
-    notifications = customers.find({'_id': ObjectId(id)}, {"notifications": 1, '_id': 0})
-    
-    # user of provier not exist in dataBase
-    if notifications == None:
-        resp = jsonify({"message": "user not exist in database"})
-        resp.status_code = 404
-        return resp
-    # Exist: get notifications
-    output = []
-    for d in notifications:        
-        output.append(json.loads(json_util.dumps(d)))
-        
-    resp = jsonify(output)
-    resp.status_code = 200
-    return resp
-
-# delete all notifications
-@customersapi.route('/customers/notifications/deleteAll/<id>/', methods=['put'])
-#@jwt_required()
-def deleteAllNotifications(id):
-
-    #iduser = get_jwt_identity()
-
-    customer = customers.find_one({'_id': ObjectId(id)})
-    if customer == None:
-        return user_notfound(IDENTIFIER)
-    if 'notifications' not in customer:
-        return jsonify({'msg': 'There is no notification'}), 404 
-    
-    try:
-        res = customers.update_one({'_id': ObjectId(id)}, {'$set': {"notifications": []}})
-    except Exception:
-        abort(500)     
-
-    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
-
-# Delete the notification idNotification
-@customersapi.route('/customers/notifications/deleteOne/<idc>/<idNotification>', methods=['PUT'])
-#@jwt_required()
-def deleteOneNotification(idc, idNotification):
-
-    #idUser = get_jwt_identity()
-    
-    customer = customers.find_one({'_id': ObjectId(idc)})
-
-    if customer == None:
-        return user_notfound(idc)
-    if 'notifications' not in customer:
-        return jsonify({'msg': 'There is no notification'}), 404 
-    try:        
-        res = customers.update_one({'_id': ObjectId(idc)}, {'$pull': {"notifications": {"id": idNotification}}})
-    except Exception:
-        abort(500)
-       
-    return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(idc)}))))
-    
-#####################################################
-  #Order
-#####################################################
-# get All order of the user iduser
-@customersapi.route('/customers/orders/<id>/', methods=['GET'])
-#@jwt_required()
-def getAllOrders(id):
-  
-   # iduser = get_jwt_identity()
-    orders = customers.find({'_id': ObjectId(id)}, {"orders": 1, '_id': 0})
-    
-    # user of provier not exist in dataBase
-    if orders == None:
-        resp = jsonify({"message": "user not exist in database"})
-        resp.status_code = 404
-        return resp
-    # Exist: get notifications
-    output = []
-    for d in orders:
-        output.append(json.loads(json_util.dumps(d)))
-    resp = jsonify(output)
-    resp.status_code = 200
-    return resp
 
 # log In 
 @customersapi.route('/customers/logIn', methods=['POST'])
@@ -480,6 +359,62 @@ def loginAdmin():
         resp = jsonify({'message' : 'Bad Request - invalid password'})
         resp.status_code = 400
         return resp
+    
+ #Update Email
+@customersapi.route('/admin/updateEMail', methods=['POST'])
+def updateEmailAdmin():
+
+    if not request.json:
+        abort(400)
+    if 'email' not in request.json:
+        abort(400) 
+
+    data = request.get_json()    
+    user = admins.find_one({'_id': data['id']})
+
+    # Email not exist in dataBase
+    if user == None:
+        resp = jsonify({"message": "This user doesn't exist in database"})
+        resp.status_code = 404
+        return resp
+    #udpate Email
+    try:
+        res = admins.update_one({'_id': ObjectId(data['id'])}, {'$set': {"email": user['email']}})
+    except Exception:
+        abort(500)  
+        
+    resp = jsonify({'message' : 'Email successfully updated'})
+    resp.status_code = 200
+    return resp
+
+#Update PW
+@customersapi.route('/admin/updatePW', methods=['POST'])
+def updatePWAdmin():
+
+    if not request.json:
+        abort(400)
+    if 'password' not in request.json:
+        abort(400) 
+
+    data = request.get_json()    
+    user = admins.find_one({'_id': ObjectId(data['id'])})
+
+    # Email not exist in dataBase
+    if user == None:
+        resp = jsonify({"message": "This user doesn't exist in database"})
+        resp.status_code = 404
+        return resp
+    
+    #udpate PW
+    password = generate_password_hash(user['password'])
+    try:
+        res = admins.update_one({'_id': ObjectId(data['id'])}, {'$set': {"password": password}})
+    except Exception:
+        abort(500)  
+        
+    resp = jsonify({'message' : 'PW successfully updated'})
+    resp.status_code = 200
+    return resp
 
 if __name__ == '__main__':
     app.run(debug=True)

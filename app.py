@@ -12,9 +12,13 @@ from endpoints.customrs import  customersapi
 from endpoints.products import  productapi
 from endpoints.settings import  settingsapi
 from endpoints.collections import collectionsapi
-from flask_cors import CORS
 from endpoints.brands import brandsapi
 from endpoints.categories import categoryapi
+from endpoints.orders import ordersapi
+from endpoints.transactions import  transactionsapi
+
+from flask_cors import CORS
+
 
 
 app = Flask(__name__)
@@ -38,3 +42,5 @@ app.register_blueprint(settingsapi, url_prefix="/")
 app.register_blueprint(collectionsapi, url_prefix="/")
 app.register_blueprint(brandsapi, url_prefix="/")
 app.register_blueprint(categoryapi, url_prefix="/")
+app.register_blueprint(ordersapi, url_prefix="/")
+app.register_blueprint(transactionsapi, url_prefix="/")

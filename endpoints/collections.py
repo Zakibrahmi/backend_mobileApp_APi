@@ -83,8 +83,7 @@ def collectionByID(id):
 #@jwt_required()
 def updateCollectionState(id, state):
 
-   
-    
+       
     if ObjectId.is_valid(id) == False:
         return   make_response(jsonify({"error": "invalid ID"}), 400)
     
@@ -148,6 +147,127 @@ def deleteCollection(id):
         abort(500)
 
     return success()
+
+# Left and right on the down of the home page#
+
+@collectionsapi.route('/collectionsCat/add', methods=['POST'])
+#@jwt_required()
+def addCollectioncat():
+    
+    if not request.json:
+        abort(400)
+   
+    if 'image' in request.json and isinstance(request.json['image'], str) == False:
+        abort(400)
+   
+    if  'category' not in request.json or "type" not in request.json: 
+        abort(400)
+   
+    data = request.get_json()
+    data['state'] = "disabled"
+        
+    try:
+        pro = collectionCat.insert_one(data)
+    except Exception:
+        abort(500)
+    proj = collectionCat.find_one({'_id': ObjectId(pro.inserted_id)})
+    resp = jsonify(json.loads(json_util.dumps(proj)))
+    resp.status_code= 200
+    return resp
+
+# update  collecion category 
+@collectionsapi.route('/collectionsCat/update/<id>/', methods=['PUT'])
+#@jwt_required()
+def updateCollectionCat(id):
+    
+    if ObjectId.is_valid(id) == False:
+        return   make_response(jsonify({"error": "invalid ID"}), 400)
+    
+    if not request.json:
+        abort(400)
+    col = collectionCat.find_one({'_id': ObjectId(id)})
+           
+    if col ==None:
+        resp = jsonify({"message": "collection does not exist in database"})
+        resp.status_code = 404
+        return resp 
+    coll = request.get_json()
+    try:
+        res = collectionCat.update_one({'_id': ObjectId(id)}, {'$set': coll})
+    except Exception:
+        abort(500)
+   
+    colcat = collectionCat.find_one({'_id': ObjectId(id)})
+    resp = jsonify(json.loads(json_util.dumps(colcat)))
+    resp.status_code = 200
+    
+    return resp
+
+#Delete a collection  by ID
+@collectionsapi.route('/collectionsCat/delete/<id>/', methods=['DELETE'])
+#@jwt_required()
+def deleteCollectionCat(id):
+   
+    try:
+        collectionCat.delete_one({'_id': ObjectId(id)})
+    except Exception:
+        abort(500)
+
+    return success()
+
+
+#get All collectionCat 
+@collectionsapi.route('/collectionsCat/getAll/', methods=['GET'])
+def allCollectionCat():
+    
+    output = []
+    for d in collectionCat.find().sort('created', -1):
+        output.append(json.loads(json_util.dumps(d)))
+
+    resp = jsonify(output)
+    resp.status_code = 200
+    return resp
+
+#Search collection by Id 
+@collectionsapi.route('/collectionsCat/get/<id>', methods=['GET'])
+def collectionCatByID(id):
+   
+    if ObjectId.is_valid(id) == False:
+        return id_inalid(id)
+    c = collectionCat.find_one({'_id': ObjectId(id)})
+    resp = jsonify(json.loads(json_util.dumps(c)))
+    resp.status_code = 200
+    return resp
+
+# update state of the collecion 
+@collectionsapi.route('/collectionsCat/update/<state>/<id>/', methods=['PUT'])
+#@jwt_required()
+def updateCollectioCatState(id, state):
+
+    if ObjectId.is_valid(id) == False:
+        return   make_response(jsonify({"error": "invalid ID"}), 400)
+    
+    if not request.json:
+        abort(400)
+    col = collectionCat.find_one({'_id': ObjectId(id)})
+           
+    if col ==None:
+        resp = jsonify({"message": "collection does not exist in database"})
+        resp.status_code = 404
+        return resp 
+    
+    try:
+        res = collectionCat.update_one({'_id': ObjectId(id)}, {
+                               '$set': {"state": state}})
+    except Exception:
+        abort(500)
+   
+    cat = collectionCat.find_one({'_id': ObjectId(id)})
+    resp = jsonify(json.loads(json_util.dumps(cat)))
+    resp.status_code = 200
+    
+    return resp
+
 if __name__ == '__main__':
     app.run(debug=True)
 

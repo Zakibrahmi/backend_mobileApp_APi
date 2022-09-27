@@ -3,3 +3,4 @@ flask-jwt-extended
 Flask-PyMongo
 exponent_server_sdk
 flasgger
+Flask-CORS

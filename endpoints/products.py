@@ -126,7 +126,7 @@ def allPorojectsFilter():
     resp.status_code = 200
     return resp
 
-#Search by name of the produc
+#Search by name of the product
 @productapi.route('/products/searchByName/<name>', methods=['GET'])
 def searchByName(name):
     
@@ -174,7 +174,7 @@ def updateProduct(id):
     
     return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
 
-# update  producct 
+# update  product 
 @productapi.route('/products/update/state/<id>', methods=['PUT'])
 #@jwt_required()
 def updateProductState(id):
@@ -200,7 +200,28 @@ def updateProductState(id):
     
     return jsonify(json.loads(json_util.dumps(customers.find_one({'_id': ObjectId(id)}))))
 
-
+#Remove podudct form data base
+@productapi.route('/admin/products/removeDB/<id>', methods=['DELETE'])
+#@jwt_required()
+def deleteProduct(id):
+    
+    if ObjectId.is_valid(id) == False:
+        return id_inalid(id)
+     
+    col = products.find_one({'_id': ObjectId(id)})
+           
+    if col ==None:
+        resp = jsonify({"message": "product does not exist in database"})
+        resp.status_code = 404
+        return resp
+    
+    # Physical delete product from data base 
+    try:
+        products.delete_one({'_id': ObjectId(id)})
+    except Exception:
+        abort(500)
+    return success()
+    
 if __name__ == '__main__':
     app.run(debug=True)
 

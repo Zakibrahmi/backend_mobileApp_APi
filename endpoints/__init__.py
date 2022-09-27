@@ -17,5 +17,8 @@ categories = mongo.db.categories
 collections = mongo.db.collections
 brands = mongo.db.brands
 admins = mongo.db.admins
+collectionCat = mongo.db.collectioncat
+orders = mongo.db.orders
+transactions = mongo.db.transactions
 
 

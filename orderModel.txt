@@ -1,0 +1,65 @@
+orders:
+      required:
+      - orderDate
+      - uuid
+      - orderItems
+      - customer
+      - shipping_address
+      - total_price
+      - total_discounts
+      - state
+
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: uuid of the order, will be created by API server side
+          format: uuid
+        orderItems:
+          type: array
+          items:
+            product_uuid:
+                type: string
+                description: uuid of the product Item              
+            detail:
+              $ref: '#/components/schemas/products_attributes'
+            quantity:
+              type: integer
+            discount:
+              type: number
+              descripion: discount applied for the product Item     
+        orderDate:
+          type: string
+          description: date of the order 
+          format: date
+        shipping_address:
+          type: object
+          description: shipping address (an be different form the adress of the customer on the app)
+          properties:
+             name:
+              type: string 
+              description: name of the contact person
+            adress: 
+              type: string
+              descritpion: adress like provided by DHL..
+            phoneNumber:
+              type: string 
+          state: 
+            type: string
+            description: current state of the order such as created, shipped, etc.
+           
+  products_attributes:
+      type: object
+      properties:
+        name: string
+        color:
+          type: string
+          description: color name
+          example: green
+        images:
+            type: string
+            description: link of the image
+            example: https://apiwaedline.com/products/images/codeProduct.jpg
+        size:
+          type: string
+          example: M  
