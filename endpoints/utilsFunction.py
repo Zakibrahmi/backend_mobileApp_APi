@@ -79,14 +79,16 @@ def token_required_admin(data):
       g = re.match("^Bearer\s+(.*)", token)
 
       if not g:
-        return "invalid Token" 
+       return "invalid Token" 
       token =  g.group(1)
       w = token.split()
-
+      if ObjectId.is_valid(str(w[0])) == False:
+        return "invalid ID"
       try:
-           user = admins.find_one({'oidFirebase': w[0]})
+           user = admins.find_one({'_id': ObjectId(str(w[0]))})
       except:
           return "internal server problem !!" 
       if user == None:
         return "Access Denied" 
-      return "authorized"
+      
+      return  'authorized'

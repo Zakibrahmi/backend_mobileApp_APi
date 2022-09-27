@@ -55,14 +55,13 @@ def not_found(error=None):
 #Add  transaction
 @transactionsapi.route('/transaction/add', methods=['POST'])
 #@jwt_required()
-def addOrderClient():
+def addTransaction():
    
     if not request.json:
         abort(400)
     if 'order' not in request.json or "transaction" not in request.json:
         abort(400)
-    if ObjectId.is_valid(request.json['order']) == False:
-        return id_inalid(request.json['transaction'])        
+           
    
     trans = request.get_json()   
     trans['createdAt'] = time.strftime('%d/%m/%Y %H', time.localtime())
@@ -86,7 +85,7 @@ def getTransactionByOrder(id):
     resp.status_code = 200
     return resp
 
-# get All order of all users by page
+# get All transactions  by page
 @transactionsapi.route('/transactions/getALl/', methods=['GET'])
 #@jwt_required()
 def getAllTransactions():
