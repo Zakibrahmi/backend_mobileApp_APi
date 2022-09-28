@@ -115,7 +115,7 @@ def getAllOrders():
         
     order = ['createdAt', -1]    
 
-    # filter courses get document counts
+    # filter orders; get document counts
     output = []
     results = orders.find().sort(order[0], order[1]).limit(int(limitcollection)).skip(startIndex)
    
@@ -136,8 +136,8 @@ def updatOrderState(id, state):
     order = admins.find_one({'_id': ObjectId(id)})
 
     # Email not exist in dataBase
-    if user == None:
-        resp = jsonify({"message": "This Email not exist in database"})
+    if order == None:
+        resp = jsonify({"message": "This user not exist in database"})
         resp.status_code = 404
         return resp
     try:

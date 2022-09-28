@@ -19,8 +19,6 @@ from endpoints.transactions import  transactionsapi
 
 from flask_cors import CORS
 
-
-
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "004f2af45d3a4e1578b1a7dd2d17fdae47f"  # Change this!
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=3)
