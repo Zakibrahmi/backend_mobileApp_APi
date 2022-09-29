@@ -1,3 +1,4 @@
+from formatter import NullFormatter
 from logging.config import IDENTIFIER
 from math import trunc
 from flask import request, make_response, abort, session
@@ -59,12 +60,21 @@ def addTransaction():
    
     if not request.json:
         abort(400)
-    if 'order' not in request.json or "transaction" not in request.json:
+    if  "transaction" not in request.json:
         abort(400)
            
-   
+    orderID = request.args.get("orderId")
+    if orderID== None:
+        message = {
+            'status': 404,
+            'message': 'No prameters',
+        }
+        resp = jsonify(message)
+        resp.status_code = 404
+        return resp
     trans = request.get_json()   
     trans['createdAt'] = time.strftime('%d/%m/%Y %H', time.localtime())
+    trans['order'] = orderID
     try:
         pro = transactions.insert_one(trans)
     except Exception:
