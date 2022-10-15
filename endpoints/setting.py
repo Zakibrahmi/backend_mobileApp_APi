@@ -47,24 +47,56 @@ def not_found(error=None):
     resp.status_code = 404
     return resp
 
-#get max date as product is new
-@settingsapi.route('/settings/newArrivalDay/', methods=['GET'])
-def allNew():
+# add/Update settings. If seetings exist, all settings need to be send and request
+@settingsapi.route('/admin/settings/add', methods=['POST'])
+def addUpdateSetting():
 
-    metrics = settings.find_one({},{"days": 1})   
-    resp = jsonify(json.loads(json_util.dumps(metrics)))
-    resp.status_code=200
+    if not request.json:
+        abort(400)
+    settings.drop()
+    data={} 
+    if  "daysToReturns" not in request.json:
+        data ["daysToReturns"] = 0
+    if "raison" not in request.json:
+      data ["raisonss"] = []
+    try:
+        pro = settings.insert_one(data)
+    except Exception:
+        abort(500)
+      
+    set = settings.find_one({'_id': ObjectId(pro.inserted_id)})
+    resp = jsonify(json.loads(json_util.dumps(set)))
+    resp.status_code= 200
     return resp
 
-#get All settings
-@settingsapi.route('/settings/getAll', methods=['GET'])
+#get all settings
+@settingsapi.route('/admin/settings/all', methods=['GET'])
 def allSettings(): 
     
-    set = settings.find_one()   
-    resp = jsonify(json.loads(json_util.dumps(set)))
+    output = []
+    for d in settings.find():
+      output.append(json.loads(json_util.dumps(d)))
+    resp = jsonify(output)
+    resp.status_code = 200
+    return resp
+  
+#get raison settings
+@settingsapi.route('/admin/settings/raisons', methods=['GET'])
+def daysToReturnsSettings(): 
+    
+    rai = settings.find_one({}, {"raisons": 1, "_id": 0})   
+    resp = jsonify(json.loads(json_util.dumps(rai)))
     resp.status_code=200
     return resp
-
+  
+# Get days to return settings
+@settingsapi.route('/settings/daysToReturns', methods=['GET'])
+def getAllSettings(): 
+    
+    dy = settings.find_one({}, {"daysToReturns": 1, "_id": 0})   
+    resp = jsonify(json.loads(json_util.dumps(dy)))
+    resp.status_code=200
+    return resp
 
 if __name__ == '__main__':
     app.run(debug=True)

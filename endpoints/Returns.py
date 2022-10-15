@@ -25,19 +25,19 @@ from flask_jwt_extended import JWTManager
 from endpoints.utilsFunction import *
 from . import *
 
-ordersapi = Blueprint(name="ordersapi", import_name=__name__)
+retunrapi = Blueprint(name="retunrapi", import_name=__name__)
 
 # traitement erreur
-@ordersapi.errorhandler(400)
+@retunrapi.errorhandler(400)
 def create_failed(error):
     return make_response(jsonify({"error": "bad input"}), 400)
 
-@ordersapi.errorhandler(500)
+@retunrapi.errorhandler(500)
 def internalServer(error):
     return make_response(jsonify({'error': 'Internal Server Error'}), 500)
 
 
-@ordersapi.errorhandler(403)
+@retunrapi.errorhandler(403)
 def user_notfound(id):
     message = {
         'status': 403,
@@ -47,7 +47,7 @@ def user_notfound(id):
     return resp
 
 
-@ordersapi.errorhandler(404)
+@retunrapi.errorhandler(404)
 def not_found(error=None):
     message = {
         'status': 404,
@@ -57,40 +57,41 @@ def not_found(error=None):
     resp.status_code = 404
     return resp
 
-#Add order
-@ordersapi.route('/order/add', methods=['POST'])
+#Add returns
+@retunrapi.route('/returns/add', methods=['POST'])
 #@jwt_required()
-def addOrderClient():
+def addReturnsClient():
    
     if not request.json:
         abort(400)
-    if 'customer' not in request.json or "items" not in request.json or "shippingId" not in request.json:
+    if 'customer' not in request.json or "items" not in request.json or "orderId" not in request.json:
         abort(400)
     if ObjectId.is_valid(request.json['customer']) == False:
         return id_inalid(request.json['customer'])        
    
-    order = request.get_json()
-    order['date'] = time.strftime('%d/%m/%Y %H', time.localtime())
-   
+    returned = request.get_json()
+    states =[]
+    states.append({'date' : time.strftime('%d/%m/%Y %H', time.localtime()),
+                   "state" : "Return requested"}    
+                )
+    returned["states"] = states
     try:
-        pro = orders.insert_one(order)
+        pro = returns.insert_one(returned)
     except Exception:
         abort(500)
-    
-    #Send Email to customer contains summary of the order. 
-    
-    ord = orders.find_one({'_id': ObjectId(pro.inserted_id)})
+      
+    ord = returns.find_one({'_id': ObjectId(pro.inserted_id)})
     resp = jsonify(json.loads(json_util.dumps(ord)))
     resp.status_code= 200
     return resp
 
-# get orders of the customer id
-@ordersapi.route('/customers/orders/customer/<id>/', methods=['GET'])
+# get returns of the customer id
+@retunrapi.route('/customers/returns/customer/<id>/', methods=['GET'])
 #@jwt_required()
-def getUserOrders(id):
+def getUserReturnes(id):
   
    # iduser = get_jwt_identity()
-    ord = orders.find({'customer': id})    
+    ord = returns.find({'customer': id})    
     output = []
     for d in ord:
         output.append(json.loads(json_util.dumps(d)))
@@ -98,22 +99,22 @@ def getUserOrders(id):
     resp.status_code = 200
     return resp
 
-# get orders by id
-@ordersapi.route('/customers/orders/<id>/', methods=['GET'])
+# get returns by id
+@retunrapi.route('/customers/returns/<id>/', methods=['GET'])
 #@jwt_required()
-def getOrderById(id):
+def getReturnsById(id):
   
    # iduser = get_jwt_identity()
-    ord = orders.find_one({'_id': ObjectId(id)})    
+    ord = returns.find_one({'_id': ObjectId(id)})    
     resp = jsonify(json.loads(json_util.dumps(ord)))
     
     resp.status_code = 200
     return resp
 
-# get All order of all users by page
-@ordersapi.route('/admin/customers/orders/', methods=['GET'])
+# get All returns of all users by page
+@retunrapi.route('/admin/customers/returns/', methods=['GET'])
 #@jwt_required()
-def getAllOrders():
+def getAllReturns():
   
     page = request.args.get("page")
    
@@ -124,7 +125,7 @@ def getAllOrders():
 
     # filter orders; get document counts
     output = []
-    results = orders.find().sort(order[0], order[1]).limit(int(limitcollection)).skip(startIndex)
+    results = returns.find().sort(order[0], order[1]).limit(int(limitcollection)).skip(startIndex)
    
     for d in results: 
         output.append(json.loads(json_util.dumps(d)))
@@ -134,32 +135,55 @@ def getAllOrders():
     resp.status_code = 200
     return resp
 
-#Updaye order state
-@ordersapi.route('/admin/orders/update/state/<id>/<state>/', methods=['PUT'])
-def updatOrderState(id, state):
+# add return state. The new state will be on the request
+@retunrapi.route('/admin/returns/add/newstate/<id>/', methods=['PUT'])
+def addReturnState(id):
     
     if ObjectId.is_valid(id) == False:
         return id_inalid(id)        
-    order = orders.find_one({'_id': ObjectId(id)})
+    ret = returns.find_one({'_id': ObjectId(id)})
   
-    # Email not exist in dataBase
-    if order == None:
-        resp = jsonify({"message": "This order does't exist in database"})
+    # return not exist in dataBase
+    if ret == None:
+        resp = jsonify({"message": "This return does't exist in database"})
         resp.status_code = 404
         return resp
+
+    newState = request.get_json()["newState"]
+    state= {'date' : time.strftime('%d/%m/%Y %H', time.localtime()),
+            "state" : newState}    
     try:
-        dateState= time.strftime('%d/%m/%Y %H', time.localtime())
-        res = orders.update_one({'_id': ObjectId(id)}, {'$set': {"state": state, "dateState": dateState}})
+        returns.update_one({'_id': ObjectId(id)}, {
+                         '$push': {"states": state}})
     except Exception:
         abort(500)
+    return jsonify(json.loads(json_util.dumps(returns.find_one({'_id': ObjectId(id)}))))
 
-    if res.modified_count == 0:
-        return user_notfound(id)
+# update an existing  return state. Old an new state on request
+@retunrapi.route('/admin/returns/update/state/<id>/', methods=['PUT'])
+def updateReturnState(id):
     
-    return jsonify(json.loads(json_util.dumps(orders.find_one({'_id': ObjectId(id)}))))
+    if ObjectId.is_valid(id) == False:
+        return id_inalid(id)        
+    ret = returns.find_one({'_id': ObjectId(id)})
+  
+    # return not exist in dataBase
+    if ret == None:
+        resp = jsonify({"message": "This return does't exist in database"})
+        resp.status_code = 404
+        return resp
 
+    oldState = request.get_json()['oldState']
+    newState = request.get_json()['newState']
+        
+    try:
+        returns.update_one({'_id': ObjectId(id), "states.state": oldState}, {"$set": {"states.$.state": newState}})
+    except Exception:
+        abort(500)
+    return jsonify(json.loads(json_util.dumps(returns.find_one({'_id': ObjectId(id)}))))
+ 
 # get Returned orders of the customer id
-@ordersapi.route('/customers/returnedOrders/customer/<id>/', methods=['GET'])
+@retunrapi.route('/customers/returnedOrders/customer/<id>/', methods=['GET'])
 #@jwt_required()
 def getUserReturnedOrders(id):
   

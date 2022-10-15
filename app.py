@@ -10,12 +10,13 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 from endpoints.customrs import  customersapi
 from endpoints.products import  productapi
-from endpoints.settings import  settingsapi
+from endpoints.setting import  settingsapi
 from endpoints.collections import collectionsapi
 from endpoints.brands import brandsapi
 from endpoints.categories import categoryapi
 from endpoints.orders import ordersapi
 from endpoints.transactions import  transactionsapi
+from endpoints.Returns import retunrapi
 
 from flask_cors import CORS
 
@@ -42,3 +43,4 @@ app.register_blueprint(brandsapi, url_prefix="/")
 app.register_blueprint(categoryapi, url_prefix="/")
 app.register_blueprint(ordersapi, url_prefix="/")
 app.register_blueprint(transactionsapi, url_prefix="/")
+app.register_blueprint(retunrapi, url_prefix="/")

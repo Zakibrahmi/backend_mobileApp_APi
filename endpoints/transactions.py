@@ -64,7 +64,7 @@ def addTransaction():
         abort(400)
            
     orderID = request.args.get("orderId")
-    if orderID== None:
+    if orderID == None:
         message = {
             'status': 404,
             'message': 'No prameters',

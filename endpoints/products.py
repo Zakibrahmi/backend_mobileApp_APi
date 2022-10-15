@@ -138,8 +138,7 @@ def searchByName(name):
     resp.status_code = 200
     return resp
 
-
-# update  producct 
+# update  product 
 @productapi.route('/products/update/<id>', methods=['PUT'])
 #@jwt_required()
 def updateProduct(id):
