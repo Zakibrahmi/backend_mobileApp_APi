@@ -57,8 +57,8 @@ def addUpdateSetting():
     data={} 
     if  "daysToReturns" not in request.json:
         data ["daysToReturns"] = 0
-    if "raison" not in request.json:
-      data ["raisonss"] = []
+    if "reason" not in request.json:
+      data ["reasons"] = []
     try:
         pro = settings.insert_one(data)
     except Exception:
@@ -81,10 +81,10 @@ def allSettings():
     return resp
   
 #get raison settings
-@settingsapi.route('/admin/settings/raisons', methods=['GET'])
+@settingsapi.route('/admin/settings/reasons', methods=['GET'])
 def daysToReturnsSettings(): 
     
-    rai = settings.find_one({}, {"raisons": 1, "_id": 0})   
+    rai = settings.find_one({}, {"reasons": 1, "_id": 0})   
     resp = jsonify(json.loads(json_util.dumps(rai)))
     resp.status_code=200
     return resp
