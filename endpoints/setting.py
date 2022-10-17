@@ -56,8 +56,8 @@ def addUpdateSetting():
     settings.drop()
     data={} 
     if  "daysToReturns" not in request.json:
-        data ["daysToReturns"] = 0
-    if "reason" not in request.json:
+        data ["daysToReturns"] = 15
+    if "reasons" not in request.json:
       data ["reasons"] = []
     try:
         pro = settings.insert_one(data)
