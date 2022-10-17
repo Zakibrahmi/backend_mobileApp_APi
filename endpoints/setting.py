@@ -54,7 +54,7 @@ def addUpdateSetting():
     if not request.json:
         abort(400)
     settings.drop()
-    data={} 
+    data= request.get_json()
     if  "daysToReturns" not in request.json:
         data ["daysToReturns"] = 15
     if "reasons" not in request.json:
@@ -82,7 +82,7 @@ def allSettings():
   
 #get raison settings
 @settingsapi.route('/admin/settings/reasons', methods=['GET'])
-def daysToReturnsSettings(): 
+def reasonsSettings(): 
     
     rai = settings.find_one({}, {"reasons": 1, "_id": 0})   
     resp = jsonify(json.loads(json_util.dumps(rai)))
@@ -90,8 +90,8 @@ def daysToReturnsSettings():
     return resp
   
 # Get days to return settings
-@settingsapi.route('/settings/daysToReturns', methods=['GET'])
-def getAllSettings(): 
+@settingsapi.route('/admin/settings/daysToReturns', methods=['GET'])
+def getDaysSettings(): 
     
     dy = settings.find_one({}, {"daysToReturns": 1, "_id": 0})   
     resp = jsonify(json.loads(json_util.dumps(dy)))
