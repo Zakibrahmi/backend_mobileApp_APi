@@ -58,7 +58,13 @@ def addUpdateSetting():
     if  "daysToReturns" not in request.json:
         data ["daysToReturns"] = 15
     if "reasons" not in request.json:
-      data ["reasons"] = []
+        data ["reasons"] = []
+    if "estimateDaysDeliveryIn" not in request.json: 
+        data["estimateDaysDeliveryIn"] = 2
+    if "estimateDaysDeliveryOut" not in request.json: 
+        data["estimateDaysDeliveryOut"] = 5
+    if "orderIn" not in request.json: 
+        data["orderInHours"] = 15
     try:
         pro = settings.insert_one(data)
     except Exception:
@@ -98,6 +104,23 @@ def getDaysSettings():
     resp.status_code=200
     return resp
 
+#get estimateDaysDelivery Inside Bahrain
+@settingsapi.route('/admin/settings/estimateDaysDeliveryIn', methods=['GET'])
+def reasonsSettings(): 
+    
+    rai = settings.find_one({}, {"estimateDaysDeliveryIn": 1, "_id": 0})   
+    resp = jsonify(json.loads(json_util.dumps(rai)))
+    resp.status_code=200
+    return resp
+
+#get estimateDaysDelivery out Bahrain
+@settingsapi.route('/admin/settings/estimateDaysDeliveryPut', methods=['GET'])
+def reasonsSettings(): 
+    
+    rai = settings.find_one({}, {"estimateDaysDeliveryOut": 1, "_id": 0})   
+    resp = jsonify(json.loads(json_util.dumps(rai)))
+    resp.status_code=200
+    return resp
 if __name__ == '__main__':
     app.run(debug=True)
 

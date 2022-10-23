@@ -9,7 +9,7 @@ import json
 import jwt
 from flask.json import jsonify
 from bson.objectid import ObjectId
-
+from . import *
 """from requests.exceptions import ConnectionError, HTTPError
 from exponent_server_sdk import (
     DeviceNotRegisteredError,
@@ -20,14 +20,14 @@ from exponent_server_sdk import (
 
 app = Flask(__name__)
 
-app.config['MONGO_DBNAME'] = 'waedLineDB'
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/waedLineDB'
+#app.config['MONGO_DBNAME'] = 'waedLineDB'
+#app.config['MONGO_URI'] = 'mongodb://localhost:27017/waedLineDB'
 app.secret_key = "004f2af45d3a4e161a7dd2d17fdae47f"
-
+""""
 mongo = PyMongo(app)
 customers=mongo.db.customers   
 admins=mongo.db.admins   
-
+"""
 def internalServer(error):
     return make_response(jsonify({'error': 'Internal Server Error'}), 500)
     
