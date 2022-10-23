@@ -90,7 +90,6 @@ def createCustomer():
     
     access_token = create_access_token(identity= str(user['_id']), fresh=True)
     refresh_token = create_refresh_token(identity= str(user['_id']))
-
    
     user['token'] = access_token
     user['refresh'] = refresh_token
@@ -104,16 +103,11 @@ def updateCustomer(id):
     if not request.json:
         abort(400)
   
-    if 'password' not in request.json  and 'email' not in request.json:
+    if 'password' not in request.json  and 'mobile' not in request.json:
         abort(400) 
     if 'name' in request.json and isinstance(request.json['name'], str) == False:
         abort(400)
-    if 'city' in request.json and isinstance(request.json['city'], str) == False:
-        abort(400)
-    if 'counrty' in request.json and isinstance(request.json['counrty'], str) == False:
-        abort(400)
-    if isinstance(request.json['email'], str) == False:
-        abort(400)
+   
     if 'mobile' in request.json and isinstance(request.json['mobile'], str) == False:
         abort(400)
     
@@ -143,7 +137,10 @@ def getUserByID(iduser):
 @customersapi.route('/users/update/shippingAdress/<id>/', methods=['PUT'])
 #@jwt_required()
 def updateAdress(id):
-
+    
+    decison = token_required_user(request.headers)
+    if decison != "authorized":
+        return jsonify({'message': decison}), 401
     if not request.json:
         abort(400)
 
@@ -165,12 +162,10 @@ def updatePhone(id):
 
     if not request.json:
         abort(400)
-
-    #idCutomer = get_jwt_identity()
-    
+    #idCutomer = get_jwt_identity()    
     mobile = request.get_json()
     try:
-        res = customers.update_one({'_id': ObjectId(id)}, {'$set': {"mobile": mobile}})
+        res = customers.update_one({'_id': ObjectId(id)}, {'$set': {"mobile": mobile['mobile']}})
     except Exception:
         abort(500)
 
@@ -490,7 +485,7 @@ def loginAdmin():
         return resp
 
 #Update Email
-@customersapi.route('/admin/updateEMail', methods=['POST'])
+@customersapi.route('/admin/updateEMail', methods=['PUT'])
 def updateEmailAdmin():
 
     if not request.json:
@@ -499,7 +494,7 @@ def updateEmailAdmin():
         abort(400) 
 
     data = request.get_json()    
-    user = admins.find_one({'_id': data['id']})
+    user = admins.find_one({'_id': ObjectId(data['id'])})
 
     # Email not exist in dataBase
     if user == None:
@@ -508,18 +503,19 @@ def updateEmailAdmin():
         return resp
     #udpate Email
     try:
-        res = admins.update_one({'_id': ObjectId(data['id'])}, {'$set': {"email": user['email']}})
+        res = admins.update_one({'_id': ObjectId(data['id'])}, {'$set': {"email": data['email']}})
     except Exception:
         abort(500)  
         
-    resp = jsonify({'message' : 'Email successfully updated'})
+    u = admins.find_one({'_id': ObjectId(data['id'])}, {'password': 0} )
+    resp = jsonify(json.loads(json_util.dumps(u)))
     resp.status_code = 200
     return resp
 
 #Update PW
-@customersapi.route('/admin/updatePW', methods=['POST'])
+@customersapi.route('/admin/updatePW', methods=['PUT'])
 def updatePWAdmin():
-
+    
     if not request.json:
         abort(400)
     if 'password' not in request.json:

@@ -67,7 +67,7 @@ def token_required(f):
    return decorator
 
 # function for verifying the access token
-def token_required_admin(data):
+def token_required_user(data):
       token = None
         # jwt is passed in the request header
       if 'Authorization' in data:
@@ -85,10 +85,11 @@ def token_required_admin(data):
       if ObjectId.is_valid(str(w[0])) == False:
         return "invalid ID"
       try:
-           user = admins.find_one({'_id': ObjectId(str(w[0]))})
+          adm = admins.find_one({'_id': ObjectId(str(w[0]))})
+          clt = customers.find_one({'_id': ObjectId(str(w[0]))})           
       except:
           return "internal server problem !!" 
-      if user == None:
+      if adm == None and clt == None:
         return "Access Denied" 
       
       return  'authorized'

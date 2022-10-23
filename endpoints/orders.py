@@ -164,8 +164,8 @@ def updatOrderState(id, state):
 def getUserReturnedOrders(id):
   
    # iduser = get_jwt_identity()
-    daysr= settings.find_one({}, {"daysToReturn": 1})
-    previous_day = datetime.now() - timedelta(days=daysr['daysToReturn'])
+    daysr= settings.find_one({}, {"daysToReturns": 1})
+    previous_day = datetime.now() - timedelta(days=daysr['daysToReturns'])
     
     ord = orders.find({'customer': id, "state": "Delivered"})    
     output = []
